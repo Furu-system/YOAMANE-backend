@@ -39,27 +39,27 @@ class Assignments(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
 
-class GroupTag(models.Model):
+class GroupTags(models.Model):
     name = models.CharField(max_length=50)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class ToDoList(models.Model):
+class ToDoLists(models.Model):
     name = models.CharField(max_length=50)
     subjects_id = models.IntegerField()
     limited_time = models.DateTimeField()
     estimated_work_time = models.DateTimeField()
     notifying_time = models.DateTimeField(null=True)
     collaborating_member_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, related_name="member_id")
-    collaborating_group_id = models.ForeignKey(GroupTag, on_delete=models.CASCADE, null=True, related_name="group_id")
+    collaborating_group_id = models.ForeignKey(GroupTags, on_delete=models.CASCADE, null=True, related_name="group_id")
     memo = models.TextField(null=True)
-    is_work_finsihed=models.BooleanField(null=True)
+    is_work_finished = models.BooleanField(null=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Timetable(models.Model):
+class TimeTables(models.Model):
     monday_timetable = models.TextField(null=True)
     tuesday_timetable = models.TextField(null=True)
     wednesday_timetable = models.TextField(null=True)
@@ -77,7 +77,7 @@ class Friends(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class Color(models.Model):
+class Colors(models.Model):
     name = models.CharField(max_length=50)
     red = models.IntegerField()
     green = models.IntegerField()
@@ -85,8 +85,8 @@ class Color(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-class ToDoListTask(models.Model):
-    to_do_list_id = models.ForeignKey(ToDoList, on_delete=models.CASCADE)
+class ToDoListTasks(models.Model):
+    to_do_list_id = models.ForeignKey(ToDoLists, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     is_work_finished = models.BooleanField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -98,9 +98,9 @@ class Subjects(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
-    color_id = models.ForeignKey(Color, on_delete=models.CASCADE)
+    color_id = models.ForeignKey(Colors, on_delete=models.CASCADE)
 
-class TimetableTimes(models.Model):
+class TimeTableTimes(models.Model):
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     start_time = models.TimeField()
     class_time = models.TimeField()

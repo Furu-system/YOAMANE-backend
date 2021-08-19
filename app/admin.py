@@ -14,15 +14,15 @@ class Schedule(admin.ModelAdmin):
 class Assignment(admin.ModelAdmin):
     pass
 
-@admin.register(GroupTag)
+@admin.register(GroupTags)
 class GroupTag(admin.ModelAdmin):
     pass
 
-@admin.register(ToDoList)
+@admin.register(ToDoLists)
 class ToDoList(admin.ModelAdmin):
     pass
 
-@admin.register(Timetable)
+@admin.register(TimeTables)
 class Timetable(admin.ModelAdmin):
     pass
 
@@ -30,11 +30,11 @@ class Timetable(admin.ModelAdmin):
 class Friend(admin.ModelAdmin):
     pass
 
-@admin.register(Color)
+@admin.register(Colors)
 class Color(admin.ModelAdmin):
     pass
 
-@admin.register(ToDoListTask)
+@admin.register(ToDoListTasks)
 class ToDoListTask(admin.ModelAdmin):
     pass
 
@@ -42,6 +42,6 @@ class ToDoListTask(admin.ModelAdmin):
 class Subject(admin.ModelAdmin):
     pass
 
-@admin.register(TimetableTimes)
+@admin.register(TimeTableTimes)
 class TimetableTimes(admin.ModelAdmin):
     pass
