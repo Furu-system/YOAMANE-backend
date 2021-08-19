@@ -18,8 +18,13 @@ from django.conf.urls import url, include
 
 from app.urls import router as app_router
 
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title="API Lists")
+
 urlpatterns = [
     #path('admin/', admin.site.urls)
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(app_router.urls)),
+    url(r'^doc/', schema_view),
 ]
