@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.hashers import make_password
 
 from .models import *
 
@@ -6,6 +7,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = ('user_id', 'name', 'password')
+
+    def create(self, validated_data):
+        user = Users(
+            user_id = validated_data["user_id"],
+            name = validated_data["name"],
+            password = make_password(validated_data["password"])
+        )
+        user.save()
+        return user
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
