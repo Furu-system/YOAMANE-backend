@@ -11,6 +11,11 @@ class Users(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
+
 class Schedules(models.Model):
     title = models.CharField(max_length=50)
     start_time = models.DateTimeField()
@@ -45,6 +50,11 @@ class GroupTags(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
+
 class ToDoLists(models.Model):
     name = models.CharField(max_length=50)
     subjects_id = models.IntegerField()
@@ -58,6 +68,11 @@ class ToDoLists(models.Model):
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
 
 class TimeTables(models.Model):
     monday_timetable = models.TextField(null=True)
@@ -84,6 +99,11 @@ class Colors(models.Model):
     blue = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
 
 class ToDoListTasks(models.Model):
     to_do_list_id = models.ForeignKey(ToDoLists, on_delete=models.CASCADE)
