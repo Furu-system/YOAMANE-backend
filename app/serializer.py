@@ -17,6 +17,13 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def update(self, instance, validated_data):
+        instance.user_id = validated_data.get("user_id", instance.user_id)
+        instance.name = validated_data.get("name", instance.name)
+        instance.password = make_password(validated_data.get("password", instance.password))
+        instance.save()
+        return instance
+
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedules
