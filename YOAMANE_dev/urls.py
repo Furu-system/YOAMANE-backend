@@ -20,6 +20,8 @@ from app.urls import router as app_router
 
 from rest_framework_swagger.views import get_swagger_view
 
+from rest_framework_jwt.views import obtain_jwt_token
+
 schema_view = get_swagger_view(title="API Lists")
 
 urlpatterns = [
@@ -27,4 +29,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(app_router.urls)),
     url(r'^doc/', schema_view),
+    url(r'^api-token-auth/', obtain_jwt_token),
 ]
