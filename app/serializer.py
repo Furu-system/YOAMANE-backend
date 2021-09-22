@@ -13,21 +13,21 @@ class UserSerializer(serializers.ModelSerializer):
         read_only=True
     )
     
-    def validate_name(self,value):
+    def validate_username(self,value):
         if len(value) > 50:
             raise serializers.ValidationError("The name has to be within 50 charactor")
         return value
     
     class Meta:
         model = Users
-        fields = ('id', 'user_id', 'name', 'password')
+        fields = ('id', 'user_id', 'username', 'password')
         #read_only_fields = ('id','user_id','updated_at','created_at')
 
 
     def create(self, validated_data):
         user = Users(
             user_id = validated_data["user_id"],
-            name = validated_data["name"],
+            username = validated_data["username"],
             password = make_password(validated_data["password"])
         )
         user.save()
@@ -35,7 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.user_id = validated_data.get("user_id", instance.user_id)
-        instance.name = validated_data.get("name", instance.name)
+        instance.username = validated_data.get("username", instance.name)
         instance.password = make_password(validated_data.get("password", instance.password))
         instance.save()
         return instance

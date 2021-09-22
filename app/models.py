@@ -1,15 +1,51 @@
-import uuid
+import uuid as uuid_lib
 from django.db import models
-#from django_mysql.models import Model
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.base_user import BaseUserManager
 
 # Create your models here.
 
-class Users(models.Model):
-    user_id = models.CharField(unique=True, max_length=50)
-    name = models.CharField(max_length=50)
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, username, password, **extra_fields):
+        """
+        Create and save a user with the given username,  and password.
+        """
+        if not username:
+            raise ValueError('The given username must be set')
+        username = self.model.normalize_username(username)
+        user = self.model(username=username, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(username, password, **extra_fields)
+
+    def create_superuser(self, username, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True')
+        return self._create_user(username, password, **extra_fields)
+
+class Users(AbstractBaseUser, PermissionsMixin):
+    user_id = models.UUIDField(default=uuid_lib.uuid4, editable=False)
+    username = models.CharField(unique=True, max_length=50)
     password = models.CharField(max_length=200)
+    is_staff = models.BooleanField("is_staff", default=False)
+    is_active = models.BooleanField("is_active", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = UserManager()
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.name)
