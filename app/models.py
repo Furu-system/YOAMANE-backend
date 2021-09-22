@@ -48,7 +48,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     def __repr__(self):
-        return "{}: {}".format(self.pk, self.name)
+        return "{}: {}".format(self.pk, self.username)
     
     __str__ = __repr__
 
