@@ -1,7 +1,10 @@
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from .models import *
 from .serializer import *
+from .common_schedule import CommonSchedule
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = Users.objects.all()
@@ -35,6 +38,12 @@ class ToDoListViewSet(viewsets.ModelViewSet):
     queryset = ToDoLists.objects.all()
     serializer_class = ToDoListSerializer
 
+    def list(self, request, pk=None):
+        print(request)
+        todolists = ToDoLists.objects.filter(user_id=request.POST.get("user_id"), subject_id=request.POST.get("subject_id"))
+        serializer = ToDoListSerializer(todolists, many=True)
+        return Response(serializer.data)
+
 class ToDoListTaskViewSet(viewsets.ModelViewSet):
     queryset = ToDoListTasks.objects.all()
     serializer_class = ToDoListTaskSerializer
@@ -47,10 +56,7 @@ class ColorViewSet(viewsets.ModelViewSet):
     queryset = Colors.objects.all()
     serializer_class = ColorSerializer
 
-
-
-
-
-    
-
-
+class CommonScheduleAPIView(APIView):
+    def get(self, request, format=None):
+        common_schedule = CommonSchedule(request)
+        return Response({"message":common_schedule.helloworld()})
