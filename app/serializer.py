@@ -6,10 +6,7 @@ from .models import *
 class UserSerializer(serializers.ModelSerializer):
     #owner = serializers.ReadOnlyField(source
 
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    user_id=serializers.IntegerField(
+    user_id=serializers.UUIDField(
         read_only=True
     )
     
@@ -21,12 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = ('id', 'user_id', 'username', 'password')
-        #read_only_fields = ('id','user_id','updated_at','created_at')
-
 
     def create(self, validated_data):
         user = Users(
-            user_id = validated_data["user_id"],
             username = validated_data["username"],
             password = make_password(validated_data["password"])
         )
@@ -34,7 +28,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        instance.user_id = validated_data.get("user_id", instance.user_id)
         instance.username = validated_data.get("username", instance.username)
         instance.password = make_password(validated_data.get("password", instance.password))
         instance.save()
@@ -42,10 +35,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class GroupNameSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(
-        read_only=True
-    )
-
     def validate_name(self,value):
         if len(value) > 50:
             raise serializers.ValidationError("The name has to be within 50 charactor")
@@ -59,19 +48,6 @@ class GroupNameSerializer(serializers.ModelSerializer):
 class GroupTagSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
 
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    user_id=serializers.IntegerField(
-        read_only=True
-    )
-    groupname_id = serializers.IntegerField(
-        read_only=True
-    )
-    create_user_id=serializers.IntegerField(
-        read_only=True
-    )
-
     class Meta:
         model = GroupTags
         fields = ('id','user_id','groupname_id','create_user_id')
@@ -81,13 +57,6 @@ class ScheduleSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
     # collaborating_group_id = GroupTagSerializer()
     # collaborating_member_id = UserSerializer()
-
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    user_id=serializers.IntegerField(
-        read_only=True
-    )
 
     def validate_title(self,value):
         if len(value) > 50:
@@ -103,10 +72,6 @@ class FriendSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
     # friend_user_id = UserSerializer()
 
-    id = serializers.IntegerField(
-        read_only=True
-    )
-
     class Meta:
         model = Friends
         fields = ('id', 'user_id', 'friend_user_id')
@@ -117,10 +82,6 @@ class AssignmentSerializer(serializers.ModelSerializer):
     # collaborating_group_id = GroupTagSerializer()
     # collaborating_member_id = UserSerializer()
 
-    id = serializers.IntegerField(
-        read_only=True
-    )
-
     class Meta:
         model = Assignments
         fields = ('id', 'name', 'start_time', 'is_finished', 'complete_time', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user_id')
@@ -128,13 +89,6 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
 class TimeTableTimeSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
-
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    user_id = serializers.IntegerField(
-        read_only=True
-    )
 
     class Meta:
         model = TimeTableTimes
@@ -144,13 +98,6 @@ class TimeTableTimeSerializer(serializers.ModelSerializer):
 class TimeTableSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
 
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    user_id=serializers.IntegerField(
-        read_only=True
-    )
-
     class Meta:
         model = TimeTables
         fields = ('id', 'monday_timetable', 'tuesday_timetable', 'wednesday_timetable', 'thursday_timetable', 'friday_timetable', 'saturday_timetable', 'sunday_timetable', 'user_id')
@@ -159,16 +106,6 @@ class TimeTableSerializer(serializers.ModelSerializer):
 class ToDoListSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
     # subjects_id = SubjectSerializer()
-
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    subject_id = serializers.IntegerField(
-        read_only = True
-    )
-    user_id = serializers.IntegerField(
-        read_only=True
-    )
 
     def validate_name(self,value):
         if len(value) > 50:
@@ -183,10 +120,6 @@ class ToDoListSerializer(serializers.ModelSerializer):
 class ToDoListTaskSerializer(serializers.ModelSerializer):
     # to_do_list_id = ToDoListSerializer()
 
-    id = serializers.IntegerField(
-        read_only=True
-    )
-
     def validate_name(self,value):
         if len(value) > 50:
             raise serializers.ValidationError("The name has to be within 50 charactor")
@@ -198,10 +131,6 @@ class ToDoListTaskSerializer(serializers.ModelSerializer):
 
 
 class ColorSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(
-        read_only=True
-    )
-
     def validate_name(self,value):
         if len(value) > 50:
             raise serializers.ValidationError("The name has to be within 50 charactor")
@@ -230,12 +159,6 @@ class ColorSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
     # color_id = ColorSerializer()
-    id = serializers.IntegerField(
-        read_only=True
-    )
-    user_id=serializers.IntegerField(
-        read_only=True
-    )
 
     def validate_name(self,value):
         if len(value) > 50:
