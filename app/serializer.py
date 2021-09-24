@@ -4,8 +4,6 @@ from django.contrib.auth.hashers import make_password
 from .models import *
 
 class UserSerializer(serializers.ModelSerializer):
-    #owner = serializers.ReadOnlyField(source
-
     user_id=serializers.UUIDField(
         read_only=True
     )
