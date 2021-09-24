@@ -76,6 +76,11 @@ class GroupNames(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
+
 class GroupTags(models.Model):
     groupname_id = models.ForeignKey(GroupNames, on_delete=models.CASCADE)
     create_user_id = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="create_user")
@@ -90,35 +95,45 @@ class GroupTags(models.Model):
 
 class Schedules(models.Model):
     title = models.CharField(max_length=50)
-    start_time = models.DateTimeField(null=True)
-    end_time = models.DateTimeField(null=True)
-    is_all_day = models.BooleanField(null=True)
-    notifying_time = models.TimeField(null=True)
-    collaborating_member_id = models.ForeignKey(Users, on_delete=models.CASCADE,null=True,related_name="schedule_member_id")
-    collaborating_group_id = models.ForeignKey(GroupTags,on_delete=models.CASCADE,null=True, related_name="schedule_group_id")
-    memo = models.TextField(null=True)
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
+    is_all_day = models.BooleanField(blank=True, null=True)
+    notifying_time = models.TimeField(blank=True, null=True)
+    collaborating_member_id = models.ForeignKey(Users, on_delete=models.CASCADE, blank=True, null=True,related_name="schedule_member_id")
+    collaborating_group_id = models.ForeignKey(GroupTags,on_delete=models.CASCADE, blank=True, null=True, related_name="schedule_group_id")
+    memo = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="schedule_user")
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.title)
+    
+    __str__ = __repr__
+
 class Subjects(models.Model):
     name = models.CharField(max_length=50)
-    is_hidden = models.BooleanField(null=True)
+    is_hidden = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     color_id = models.ForeignKey(Colors, on_delete=models.CASCADE)
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
+
 class ToDoLists(models.Model):
     name = models.CharField(max_length=50)
     subject_id = models.ForeignKey(Subjects, on_delete=models.CASCADE)
     limited_time = models.DateTimeField()
-    estimated_work_time = models.DateTimeField()
-    notifying_time = models.TimeField(null=True)
-    collaborating_member_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, related_name="todolist_member_id")
-    collaborating_group_id = models.ForeignKey(GroupTags, on_delete=models.CASCADE, null=True, related_name="todolist_group_id")
-    memo = models.TextField(null=True)
-    is_work_finished = models.BooleanField(null=True)
+    estimated_work_time = models.TimeField()
+    notifying_time = models.TimeField(blank=True, null=True)
+    collaborating_member_id = models.ForeignKey(Users, on_delete=models.CASCADE, blank=True, null=True, related_name="todolist_member_id")
+    collaborating_group_id = models.ForeignKey(GroupTags, on_delete=models.CASCADE, blank=True, null=True, related_name="todolist_group_id")
+    memo = models.TextField(blank=True, null=True)
+    is_work_finished = models.BooleanField(blank=True, null=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="todolist_user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -132,27 +147,32 @@ class Assignments(models.Model):
     name = models.CharField(max_length=50)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    is_finished = models.BooleanField(null=True)
+    is_finished = models.BooleanField(blank=True, null=True)
     complete_time = models.DateTimeField()
     required_time = models.TimeField()
-    notifying_time = models.TimeField(null=True)
+    notifying_time = models.TimeField(blank=True, null=True)
     margin = models.TimeField()
-    collaborating_member_id = models.ForeignKey(Users, on_delete=models.CASCADE, null=True, related_name="assignment_member_id")
-    collaborating_group_id = models.ForeignKey(GroupTags, on_delete=models.CASCADE, null=True, related_name="assignment_group_id")
-    memo = models.TextField(null=True)
+    collaborating_member_id = models.ForeignKey(Users, on_delete=models.CASCADE, blank=True, null=True, related_name="assignment_member_id")
+    collaborating_group_id = models.ForeignKey(GroupTags, on_delete=models.CASCADE, blank=True, null=True, related_name="assignment_group_id")
+    memo = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
     to_do_list_id = models.ForeignKey(ToDoLists, on_delete=models.CASCADE, related_name="assignment_user")
 
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
+
 class TimeTables(models.Model):
-    monday_timetable = models.TextField(null=True)
-    tuesday_timetable = models.TextField(null=True)
-    wednesday_timetable = models.TextField(null=True)
-    thursday_timetable = models.TextField(null=True)
-    friday_timetable = models.TextField(null=True)
-    saturday_timetable = models.TextField(null=True)
-    sunday_timetable = models.TextField(null=True)
+    monday_timetable = models.TextField(blank=True, null=True)
+    tuesday_timetable = models.TextField(blank=True, null=True)
+    wednesday_timetable = models.TextField(blank=True, null=True)
+    thursday_timetable = models.TextField(blank=True, null=True)
+    friday_timetable = models.TextField(blank=True, null=True)
+    saturday_timetable = models.TextField(blank=True, null=True)
+    sunday_timetable = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
@@ -160,9 +180,14 @@ class TimeTables(models.Model):
 class ToDoListTasks(models.Model):
     to_do_list_id = models.ForeignKey(ToDoLists, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
-    is_work_finished = models.BooleanField(null=True)
+    is_work_finished = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __repr__(self):
+        return "{}: {}".format(self.pk, self.name)
+    
+    __str__ = __repr__
 
 class TimeTableTimes(models.Model):
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
