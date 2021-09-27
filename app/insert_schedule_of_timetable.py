@@ -19,10 +19,6 @@ class TimeTableSchedule:
             self.user_id = Users.objects.get(id=self.time_tables["user_id"])
         else:
             self.time_tables = time_table
-        print(self.user_id)
-        
-        print(type(self.time_table_times))
-        print(type(self.time_tables))
 
     def __isBizDay(self, Date):
         if Date.weekday() >= 5 or jpholiday.is_holiday(Date):
