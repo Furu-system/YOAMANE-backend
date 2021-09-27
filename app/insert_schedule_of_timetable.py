@@ -10,7 +10,6 @@ class TimeTableSchedule:
         if not isinstance(time_table_time, dict):
             self.time_table_times = time_table_time.values()[0]
             self.user_id = Users.objects.get(id=self.time_table_times["user_id"])
-            # self.user_id = self.time_table_times["user_id"]
         else:
             self.time_table_times = time_table_time
 
