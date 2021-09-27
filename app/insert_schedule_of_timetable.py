@@ -49,7 +49,7 @@ class TimeTableSchedule:
                 start_time = self.time_table_times["lunch_break_end_time"]
                 is_after_lunch = False
             class_time["start_time"] = start_time.time()
-            class_time["end_time"] = (self.time_table_times["start_time"] + self.time_table_times["class_time"] * (counter+1)).time()
+            class_time["end_time"] = (datetime.datetime.combine(datetime.date.today(), class_time["start_time"]) + self.time_table_times["class_time"] * (counter+1)).time()
             class_times.append(class_time)
         
         return class_times
@@ -77,7 +77,41 @@ class TimeTableSchedule:
                         collaborating_member = None,
                         collaborating_group = None,
                         memo = None,
-                        user = self.user_id
+                        user = self.user_id,
+                        is_class = True
                     )
                     schedules.append(schedule)
+        return schedules
+
+    def update_class_schedule(self):
+        week_days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        dict_keys = ["first", "second", "third", "fourth", "fifth"]
+        schedules = []
+        date = False
+        counter = 0
+
+        class_times = self.__calc_class_time()
+
+        for schedule in Schedules.objects.filter(user=self.user_id, is_class=True):
+            if not date:
+                date = schedule.start_time.date()
+            else:
+                if date != schedule.start_time.date():
+                    date = schedule.start_time.date()
+                    counter = 0
+            time_table = json.loads(self.time_tables[week_days[schedule.start_time.weekday()] + "_timetable"])
+            # print(time_table)
+            if not len(time_table):
+                continue
+            try:
+                schedule.title = Subjects.objects.get(pk=time_table[dict_keys[counter]]).name
+                schedule.start_time = datetime.datetime.combine(schedule.start_time.date(), class_times[counter]["start_time"])
+                schedule.end_time = datetime.datetime.combine(schedule.start_time.date(), class_times[counter]["end_time"])
+            except KeyError:
+                schedule.delete()
+            schedules.append(schedule)
+
+            counter += 1
+
+        # print(schedules)
         return schedules

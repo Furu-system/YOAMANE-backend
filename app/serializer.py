@@ -105,6 +105,20 @@ class TimeTableTimeSerializer(serializers.ModelSerializer):
         time_table_time.save()
         return time_table_time
 
+    def update(self, instance, validated_data):
+        time_table = TimeTables.objects.filter(user=validated_data["user"])
+        if time_table:
+            time_table_schedule = TimeTableSchedule(copy.copy(validated_data), time_table)
+            schedules = time_table_schedule.update_class_schedule()
+            Schedules.objects.bulk_update(schedules, fields=["title", "start_time", "end_time"])
+        
+        instance.start_time = validated_data.get("start_time", instance.start_time)
+        instance.class_time = validated_data.get("class_time", instance.class_time)
+        instance.break_time = validated_data.get("break_time", instance.break_time)
+        instance.lunch_break_start_time = validated_data.get("lunch_break_start_time", instance.lunch_break_start_time)
+        instance.lunch_break_end_time = validated_data.get("lunch_break_end_time", instance.lunch_break_end_time)
+        instance.save()
+        return instance
 
 class TimeTableSerializer(serializers.ModelSerializer):
     # user = UserSerializer()
@@ -122,6 +136,23 @@ class TimeTableSerializer(serializers.ModelSerializer):
         time_table = TimeTables(**validated_data)
         time_table.save()
         return time_table
+
+    def update(self, instance, validated_data):
+        time_table_time = TimeTableTimes.objects.filter(user=validated_data["user"])
+        if time_table_time:
+            time_table_schedule = TimeTableSchedule(time_table_time, copy.copy(validated_data))
+            schedules = time_table_schedule.update_class_schedule()
+            Schedules.objects.bulk_update(schedules, fields=["title", "start_time", "end_time"])
+        
+        instance.monday_timetable = validated_data.get('monday_timetable', instance.monday_timetable)
+        instance.tuesday_timetable = validated_data.get('tuesday_timetable', instance.tuesday_timetable)
+        instance.wednesday_timetable = validated_data.get('wednesday_timetable', instance.wednesday_timetable)
+        instance.thursday_timetable = validated_data.get('thursday_timetable', instance.thursday_timetable)
+        instance.friday_timetable = validated_data.get('friday_timetable', instance.friday_timetable)
+        instance.saturday_timetable = validated_data.get('saturday_timetable', instance.saturday_timetable)
+        instance.sunday_timetable = validated_data.get('sunday_timetable', instance.sunday_timetable)
+        instance.save()
+        return instance
 
 class ToDoListSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
