@@ -105,6 +105,7 @@ class Schedules(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="schedule_user")
+    is_class = models.BooleanField(blank=True, null=True)
 
     def __repr__(self):
         return "{}: {}".format(self.pk, self.title)
