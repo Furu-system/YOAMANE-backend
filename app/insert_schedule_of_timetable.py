@@ -1,0 +1,88 @@
+import datetime
+import jpholiday
+import json
+
+from .models import Schedules, Subjects, Users
+
+class TimeTableSchedule:
+    def __init__(self, time_table_time, time_table):
+        self.user_id = 0
+        if not isinstance(time_table_time, dict):
+            self.time_table_times = time_table_time.values()[0]
+            self.user_id = Users.objects.get(id=self.time_table_times["user_id"])
+            # self.user_id = self.time_table_times["user_id"]
+        else:
+            self.time_table_times = time_table_time
+
+        if not isinstance(time_table, dict):
+            self.time_tables = time_table.values()[0]
+            self.user_id = Users.objects.get(id=self.time_tables["user_id"])
+        else:
+            self.time_tables = time_table
+        print(self.user_id)
+        
+        print(type(self.time_table_times))
+        print(type(self.time_tables))
+
+    def __isBizDay(self, Date):
+        if Date.weekday() >= 5 or jpholiday.is_holiday(Date):
+            return 0
+        else:
+            return 1
+        
+    def __calc_class_time(self):
+        class_times = []
+        counter = -1
+        is_after_lunch = False
+
+        self.time_table_times["start_time"] = datetime.datetime.combine(datetime.date.today(), self.time_table_times["start_time"])
+        self.time_table_times["class_time"] = datetime.timedelta(hours=self.time_table_times["class_time"].hour, minutes=self.time_table_times["class_time"].minute)
+        self.time_table_times["break_time"] = datetime.timedelta(hours=self.time_table_times["break_time"].hour, minutes=self.time_table_times["break_time"].minute)
+        self.time_table_times["lunch_break_start_time"] = datetime.datetime.combine(datetime.date.today(), self.time_table_times["lunch_break_start_time"])
+        self.time_table_times["lunch_break_end_time"] = datetime.datetime.combine(datetime.date.today(), self.time_table_times["lunch_break_end_time"])
+
+        while len(class_times) <= 7:
+            counter += 1
+            class_time = {}
+            start_time = self.time_table_times["start_time"] + self.time_table_times["class_time"] * counter
+            if counter != 0:
+                start_time = start_time + self.time_table_times["break_time"]
+            if self.time_table_times["lunch_break_start_time"] <= start_time and start_time <= self.time_table_times["lunch_break_end_time"]:
+                is_after_lunch = True
+                continue
+            if is_after_lunch:
+                start_time = self.time_table_times["lunch_break_end_time"]
+                is_after_lunch = False
+            class_time["start_time"] = start_time.time()
+            class_time["end_time"] = (self.time_table_times["start_time"] + self.time_table_times["class_time"] * (counter+1)).time()
+            class_times.append(class_time)
+        
+        return class_times
+    
+    def get_class_schedule(self):
+        week_days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        class_times = self.__calc_class_time()
+        
+        schedules = []
+        start_day = (datetime.datetime.now() + datetime.timedelta(hours=9)).date()
+        end_day = datetime.datetime(2021, 12, 31).date()
+
+        for delta_day in range((end_day - start_day).days + 1):
+            date = start_day + datetime.timedelta(days=delta_day)
+            if self.__isBizDay(date):
+                time_table = json.loads(self.time_tables[week_days[date.weekday()] + "_timetable"])
+
+                for key, class_time in zip(time_table, class_times):
+                    schedule = Schedules(
+                        title = Subjects.objects.get(pk=time_table[key]).name,
+                        start_time = datetime.datetime.combine(date, class_time["start_time"]),
+                        end_time = datetime.datetime.combine(date, class_time["end_time"]),
+                        is_all_day = False,
+                        notifying_time = None,
+                        collaborating_member = None,
+                        collaborating_group = None,
+                        memo = None,
+                        user = self.user_id
+                    )
+                    schedules.append(schedule)
+        return schedules

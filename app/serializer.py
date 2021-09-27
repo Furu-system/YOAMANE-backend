@@ -1,12 +1,15 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+import copy
 
 from .models import *
 
+from .insert_schedule_of_timetable import TimeTableSchedule
+
 class UserSerializer(serializers.ModelSerializer):
-    user_id=serializers.UUIDField(
-        read_only=True
-    )
+    # user_id=serializers.UUIDField(
+    #     read_only=True
+    # )
     
     def validate_username(self,value):
         if len(value) > 50:
@@ -86,20 +89,39 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
 
 class TimeTableTimeSerializer(serializers.ModelSerializer):
-    # user_id = UserSerializer()
+    # user = UserSerializer()
 
     class Meta:
         model = TimeTableTimes
-        fields = ('id', 'user_id', 'start_time', 'class_time', 'break_time', 'lunch_break_start_time', 'lunch_break_end_time')
+        fields = ('id', 'start_time', 'class_time', 'break_time', 'lunch_break_start_time', 'lunch_break_end_time', 'user')
+
+    def create(self, validated_data):
+        time_table = TimeTables.objects.filter(user=validated_data["user"])
+        if time_table:
+            time_table_schedule = TimeTableSchedule(copy.copy(validated_data), time_table)
+            schedules = time_table_schedule.get_class_schedule()
+            Schedules.objects.bulk_create(schedules)
+        time_table_time = TimeTableTimes(**validated_data)
+        time_table_time.save()
+        return time_table_time
 
 
 class TimeTableSerializer(serializers.ModelSerializer):
-    # user_id = UserSerializer()
+    # user = UserSerializer()
 
     class Meta:
         model = TimeTables
-        fields = ('id', 'monday_timetable', 'tuesday_timetable', 'wednesday_timetable', 'thursday_timetable', 'friday_timetable', 'saturday_timetable', 'sunday_timetable', 'user_id')
+        fields = ('id', 'monday_timetable', 'tuesday_timetable', 'wednesday_timetable', 'thursday_timetable', 'friday_timetable', 'saturday_timetable', 'sunday_timetable', 'user')
     
+    def create(self, validated_data):
+        time_table_time = TimeTableTimes.objects.filter(user=validated_data["user"])
+        if time_table_time:
+            time_table_schedule = TimeTableSchedule(time_table_time, copy.copy(validated_data))
+            schedules = time_table_schedule.get_class_schedule()
+            Schedules.objects.bulk_create(schedules)
+        time_table = TimeTables(**validated_data)
+        time_table.save()
+        return time_table
 
 class ToDoListSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
