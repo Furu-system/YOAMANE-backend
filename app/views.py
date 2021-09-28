@@ -15,6 +15,11 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     serializer_class = ScheduleSerializer
     filter_fields = ['user',]
 
+    def list(self, request):
+        schedules = Schedules.objects.filter(start_time__date=request.GET.get("date"))
+        serializer = ScheduleSerializer(schedules, many=True)
+        return Response(serializer.data)
+
 class FriendViewSet(viewsets.ModelViewSet):
     queryset = Friends.objects.all()
     serializer_class = FriendSerializer
@@ -24,6 +29,11 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     queryset = Assignments.objects.all()
     serializer_class = AssignmentSerializer
     filter_fields = ['user',]
+
+    def list(self, request):
+        assignments = Assignments.objects.filter(start_time__date=request.GET.get("date"))
+        serializer = AssignmentSerializer(assignments, many=True)
+        return Response(serializer.data)
 
 class TimeTableTimeViewSet(viewsets.ModelViewSet):
     queryset = TimeTableTimes.objects.all()
