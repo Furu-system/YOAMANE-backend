@@ -70,12 +70,20 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 
 class FriendSerializer(serializers.ModelSerializer):
-    # user_id = UserSerializer()
-    # friend_user_id = UserSerializer()
+    user_info = UserSerializer(read_only=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=Users.objects.all())
+    friend_user_info = UserSerializer(read_only=True)
+    friend_user_id = serializers.CharField(write_only=True)
 
     class Meta:
         model = Friends
-        fields = ('id', 'user_id', 'friend_user_id')
+        fields = ('id', 'user', 'friend_user', 'friend_user_id', 'user_info', 'friend_user_info')
+
+    def create(self, validated_data):
+        friend_user = Users.objects.get(user_id__startswith=validated_data["friend_user_id"])
+        validated_data["friend_user"] = friend_user
+        del validated_data['friend_user_id']
+        return Friends.objects.create(**validated_data)
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
