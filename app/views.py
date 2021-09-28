@@ -13,6 +13,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class ScheduleViewSet(viewsets.ModelViewSet):
     queryset = Schedules.objects.all()
     serializer_class = ScheduleSerializer
+    filter_fields = ['user',]
 
 class FriendViewSet(viewsets.ModelViewSet):
     queryset = Friends.objects.all()
@@ -22,6 +23,7 @@ class FriendViewSet(viewsets.ModelViewSet):
 class AssignmentViewSet(viewsets.ModelViewSet):
     queryset = Assignments.objects.all()
     serializer_class = AssignmentSerializer
+    filter_fields = ['user',]
 
 class TimeTableTimeViewSet(viewsets.ModelViewSet):
     queryset = TimeTableTimes.objects.all()
