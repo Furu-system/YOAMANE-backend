@@ -17,6 +17,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 class FriendViewSet(viewsets.ModelViewSet):
     queryset = Friends.objects.all()
     serializer_class = FriendSerializer
+    filter_fields = ['user',]
 
 class AssignmentViewSet(viewsets.ModelViewSet):
     queryset = Assignments.objects.all()
@@ -37,11 +38,7 @@ class TimeTableViewSet(viewsets.ModelViewSet):
 class ToDoListViewSet(viewsets.ModelViewSet):
     queryset = ToDoLists.objects.all()
     serializer_class = ToDoListSerializer
-
-    def list(self, request):
-        todo_lists = ToDoLists.objects.filter(user_id=request.POST.get("user_id"), subject_id=request.POST.get("subject_id"))
-        serializer = ToDoListSerializer(todo_lists, many=True)
-        return Response(serializer.data)
+    filter_fields = ['user', 'subject_id']
 
 class ToDoListTaskViewSet(viewsets.ModelViewSet):
     queryset = ToDoListTasks.objects.all()
