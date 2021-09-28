@@ -28,14 +28,17 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 class TimeTableTimeViewSet(viewsets.ModelViewSet):
     queryset = TimeTableTimes.objects.all()
     serializer_class = TimeTableTimeSerializer
+    filter_fields = ['user',]
 
 class GroupTagViewSet(viewsets.ModelViewSet):
     queryset = GroupTags.objects.all()
     serializer_class = GroupTagSerializer
+    filter_fields = ['create_user',]
 
 class TimeTableViewSet(viewsets.ModelViewSet):
     queryset = TimeTables.objects.all()
     serializer_class = TimeTableSerializer
+    filter_fields = ['user',]
 
 class ToDoListViewSet(viewsets.ModelViewSet):
     queryset = ToDoLists.objects.all()
@@ -49,6 +52,7 @@ class ToDoListTaskViewSet(viewsets.ModelViewSet):
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subjects.objects.all()
     serializer_class = SubjectSerializer
+    filter_fields = ['user',]
 
 class ColorViewSet(viewsets.ModelViewSet):
     queryset = Colors.objects.all()
