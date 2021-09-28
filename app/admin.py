@@ -14,6 +14,10 @@ class Schedule(admin.ModelAdmin):
 class Assignment(admin.ModelAdmin):
     pass
 
+@admin.register(GroupNames)
+class GroupName(admin.ModelAdmin):
+    pass
+
 @admin.register(GroupTags)
 class GroupTag(admin.ModelAdmin):
     pass
