@@ -16,7 +16,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     filter_fields = ['user',]
 
     def list(self, request):
-        schedules = Schedules.objects.filter(start_time__date=request.GET.get("date"))
+        schedules = Schedules.objects.filter(user=request.GET.get("user"), start_time__date=request.GET.get("date"))
         serializer = ScheduleSerializer(schedules, many=True)
         return Response(serializer.data)
 
@@ -58,6 +58,7 @@ class ToDoListViewSet(viewsets.ModelViewSet):
 class ToDoListTaskViewSet(viewsets.ModelViewSet):
     queryset = ToDoListTasks.objects.all()
     serializer_class = ToDoListTaskSerializer
+    filter_fields = ['id', 'to_do_list_id']
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subjects.objects.all()
