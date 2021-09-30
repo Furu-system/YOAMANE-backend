@@ -71,6 +71,6 @@ class ColorViewSet(viewsets.ModelViewSet):
 
 class CommonScheduleAPIView(APIView):
     def get(self, request, format=None):
-        common_schedule = CommonSchedule(request)
+        common_schedule = CommonSchedule(request.POST)
         common_schedule.get_common_schedule()
         return Response({"message":common_schedule.helloworld()})

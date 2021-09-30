@@ -17,9 +17,9 @@ from django.contrib import admin
 from django.conf.urls import url, include
 
 from app.urls import router as app_router
+from app.views import *
 
 from rest_framework_swagger.views import get_swagger_view
-
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 schema_view = get_swagger_view(title="API Lists")
@@ -32,4 +32,5 @@ urlpatterns = [
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-refresh/', refresh_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
+    url(r'^api/common-schedule', CommonScheduleAPIView.as_view()),
 ]
