@@ -56,7 +56,6 @@ class TimeTableSchedule:
             class_time["start_time"] = start_time.time()
             class_time["end_time"] = end_time.time()
             class_times.append(class_time)
-        # print(class_times)
 
         return class_times
     
@@ -106,7 +105,6 @@ class TimeTableSchedule:
                     date = schedule.start_time.date()
                     counter = 0
             time_table = json.loads(self.time_tables[week_days[schedule.start_time.weekday()] + "_timetable"])
-            # print(time_table)
             if not len(time_table):
                 continue
             try:
@@ -119,5 +117,4 @@ class TimeTableSchedule:
 
             counter += 1
 
-        # print(schedules)
         return schedules
