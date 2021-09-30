@@ -1,8 +1,11 @@
 import datetime
 import jpholiday
 import json
+import warnings
 
 from .models import Schedules, Subjects, Users
+
+warnings.simplefilter('ignore')
 
 class TimeTableSchedule:
     def __init__(self, time_table_time, time_table):
@@ -36,22 +39,25 @@ class TimeTableSchedule:
         self.time_table_times["lunch_break_start_time"] = datetime.datetime.combine(datetime.date.today(), self.time_table_times["lunch_break_start_time"])
         self.time_table_times["lunch_break_end_time"] = datetime.datetime.combine(datetime.date.today(), self.time_table_times["lunch_break_end_time"])
 
-        while len(class_times) <= 7:
+        while len(class_times) <= 5:
             counter += 1
             class_time = {}
-            start_time = self.time_table_times["start_time"] + self.time_table_times["class_time"] * counter
-            if counter != 0:
-                start_time = start_time + self.time_table_times["break_time"]
-            if self.time_table_times["lunch_break_start_time"] <= start_time and start_time <= self.time_table_times["lunch_break_end_time"]:
+            if counter == 0:
+                start_time = self.time_table_times["start_time"]
+            else :
+                start_time = end_time + self.time_table_times["break_time"]
+            if self.time_table_times["lunch_break_start_time"] <= start_time and start_time < self.time_table_times["lunch_break_end_time"] and not is_after_lunch:
                 is_after_lunch = True
                 continue
             if is_after_lunch:
                 start_time = self.time_table_times["lunch_break_end_time"]
                 is_after_lunch = False
+            end_time = start_time + self.time_table_times["class_time"]
             class_time["start_time"] = start_time.time()
-            class_time["end_time"] = (datetime.datetime.combine(datetime.date.today(), class_time["start_time"]) + self.time_table_times["class_time"] * (counter+1)).time()
+            class_time["end_time"] = end_time.time()
             class_times.append(class_time)
-        
+        # print(class_times)
+
         return class_times
     
     def get_class_schedule(self):
