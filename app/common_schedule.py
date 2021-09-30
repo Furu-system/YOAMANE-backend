@@ -58,7 +58,6 @@ class CommonSchedule:
 
         for day in range((self.limit_date - datetime.datetime.now()).days + 1):
             date = (datetime.datetime.now() + datetime.timedelta(days=day)).date()
-            print(date)
             for user_id in all_user_ids:
                 user_schedules = self.__get_user_schedule(user_id, date)
                 all_user_time_list = np.array([0 for _ in range(self.__calc_list_number(self.required_time_minute))])
@@ -80,8 +79,6 @@ class CommonSchedule:
                         count_minute += self.required_time_minute
                         counter += 1
                     sum_time_list += np.array(time_list)
-                    # print(time_list)
-                print(list(sum_time_list))
                 all_user_time_list += sum_time_list
 
             for ind in range(max(priority_time_indexes)+1):
