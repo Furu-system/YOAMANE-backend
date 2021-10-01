@@ -5,6 +5,7 @@ import copy
 from .models import *
 
 from .insert_schedule_of_timetable import TimeTableSchedule
+from .bayesian_inference import BayesianInference
 
 class UserSerializer(serializers.ModelSerializer):
     # user_id=serializers.UUIDField(
@@ -94,6 +95,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignments
         fields = ('id', 'name', 'start_time', 'is_finished', 'complete_time', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user_id')
+    
+    def create(self, validated_data):
+        bayesian_inference = BayesianInference(2)
+        print(bayesian_inference.calc_mean())
 
 
 class TimeTableTimeSerializer(serializers.ModelSerializer):
