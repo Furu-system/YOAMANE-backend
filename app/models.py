@@ -127,7 +127,7 @@ class Subjects(models.Model):
 
 class ToDoLists(models.Model):
     name = models.CharField(max_length=50)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subjects, null=True, blank=True, on_delete=models.CASCADE)
     limited_time = models.DateTimeField()
     estimated_work_time = models.TimeField()
     notifying_time = models.TimeField(blank=True, null=True)
@@ -135,7 +135,7 @@ class ToDoLists(models.Model):
     collaborating_group = models.ForeignKey(GroupTags, on_delete=models.CASCADE, blank=True, null=True, related_name="todolist_group_id")
     memo = models.TextField(blank=True, null=True)
     is_work_finished = models.BooleanField(blank=True, null=True)
-    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="todolist_user")
+    user = models.ForeignKey(Users, null=True, blank=True, on_delete=models.CASCADE, related_name="todolist_user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
