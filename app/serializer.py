@@ -5,7 +5,8 @@ import copy
 from .models import *
 
 from .insert_schedule_of_timetable import TimeTableSchedule
-from .bayesian_inference import BayesianInference
+#from .bayesian_inference import BayesianInference
+from .ridge_regression import RidgeRegression
 
 class UserSerializer(serializers.ModelSerializer):
     # user_id=serializers.UUIDField(
@@ -94,11 +95,12 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignments
-        fields = ('id', 'name', 'start_time', 'is_finished', 'complete_time', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user_id')
+        fields = ('id', 'name', 'start_time', 'is_finished', 'complete_time', 'margin', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user', 'to_do_list')
     
     def create(self, validated_data):
-        bayesian_inference = BayesianInference(2)
-        print(bayesian_inference.calc_mean())
+        ridge_regressor = RidgeRegression(validated_data)
+    #    bayesian_inference = BayesianInference(2)
+    #    print(bayesian_inference.calc_mean())
 
 
 class TimeTableTimeSerializer(serializers.ModelSerializer):
@@ -123,7 +125,7 @@ class TimeTableTimeSerializer(serializers.ModelSerializer):
         if time_table:
             time_table_schedule = TimeTableSchedule(copy.copy(validated_data), time_table)
             schedules = time_table_schedule.update_class_schedule()
-            Schedules.objects.bulk_update(schedules, fields=["title", "start_time", "end_time"])
+            Schedules.objects.bulk_create(schedules)
         
         instance.start_time = validated_data.get("start_time", instance.start_time)
         instance.class_time = validated_data.get("class_time", instance.class_time)
@@ -141,6 +143,9 @@ class TimeTableSerializer(serializers.ModelSerializer):
         fields = ('id', 'monday_timetable', 'tuesday_timetable', 'wednesday_timetable', 'thursday_timetable', 'friday_timetable', 'saturday_timetable', 'sunday_timetable', 'user')
     
     def create(self, validated_data):
+        print(validated_data)
+        print(validated_data["monday_timetable"])
+        print(type(validated_data["monday_timetable"]))
         time_table_time = TimeTableTimes.objects.filter(user=validated_data["user"])
         if time_table_time:
             time_table_schedule = TimeTableSchedule(time_table_time, copy.copy(validated_data))
@@ -151,11 +156,14 @@ class TimeTableSerializer(serializers.ModelSerializer):
         return time_table
 
     def update(self, instance, validated_data):
+        print(validated_data)
+        print(validated_data["monday_timetable"])
+        print(type(validated_data["monday_timetable"]))
         time_table_time = TimeTableTimes.objects.filter(user=validated_data["user"])
         if time_table_time:
             time_table_schedule = TimeTableSchedule(time_table_time, copy.copy(validated_data))
             schedules = time_table_schedule.update_class_schedule()
-            Schedules.objects.bulk_update(schedules, fields=["title", "start_time", "end_time"])
+            Schedules.objects.bulk_create(schedules)
         
         instance.monday_timetable = validated_data.get('monday_timetable', instance.monday_timetable)
         instance.tuesday_timetable = validated_data.get('tuesday_timetable', instance.tuesday_timetable)
