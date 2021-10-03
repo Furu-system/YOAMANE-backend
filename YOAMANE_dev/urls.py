@@ -32,5 +32,6 @@ urlpatterns = [
     url(r'^api-token-auth/', obtain_jwt_token),
     url(r'^api-token-refresh/', refresh_jwt_token),
     url(r'^api-token-verify/', verify_jwt_token),
-    url(r'^api/common-schedule', CommonScheduleAPIView.as_view()),
+    url(r'^api/common-schedule/', CommonScheduleAPIView.as_view()),
+    url(r'^api/suggest-time/', SuggestTimeAPIView.as_view()),
 ]

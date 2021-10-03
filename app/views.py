@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from .models import *
 from .serializer import *
 from .common_schedule import CommonSchedule
+from .suggest_time import SuggestTime
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = Users.objects.all()
@@ -76,3 +77,13 @@ class CommonScheduleAPIView(APIView):
             "data" : request.POST,
             "candidate" : common_schedule.get_common_schedule(),
         })
+
+class SuggestTimeAPIView(APIView):
+    def get(self, request, format=None):
+        suggest_time = SuggestTime(request.POST)
+        suggest_times = suggest_time.get_suggest_time()
+        print(suggest_times)
+        return Response({
+            "data" : request.POST,
+            "candidate" : suggest_times,
+            })
