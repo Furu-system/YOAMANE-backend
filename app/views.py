@@ -6,6 +6,7 @@ from .models import *
 from .serializer import *
 from .common_schedule import CommonSchedule
 from .suggest_time import SuggestTime
+from .ridge_regression import RidgeRegression 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = Users.objects.all()
@@ -87,4 +88,13 @@ class SuggestTimeAPIView(APIView):
             "data" : request.POST,
             "count" : count,
             "candidate" : suggest_times,
+            })
+
+class MarginAPIView(APIView):
+    def get(self, request, format=None):
+        ridge_reg = RidgeRegression(request.POST)
+        y = ridge_reg.get_margin_time()
+        return Response({
+            "message" : "hoge",
+            "y" : y
             })
