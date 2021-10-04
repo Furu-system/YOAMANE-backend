@@ -82,14 +82,14 @@ class GroupNames(models.Model):
     __str__ = __repr__
 
 class GroupTags(models.Model):
-    groupname = models.ForeignKey(GroupNames, on_delete=models.CASCADE)
-    create_user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="create_user")
-    user = models.ForeignKey(Users, on_delete=models.CASCADE,related_name="grouptag_user")
+    groupname = models.ForeignKey(GroupNames, blank=True, null=True, on_delete=models.CASCADE)
+    create_user = models.ForeignKey(Users, blank=True, null=True, on_delete=models.CASCADE, related_name="create_user")
+    user = models.ForeignKey(Users, blank=True, null=True, on_delete=models.CASCADE,related_name="grouptag_user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __repr__(self):
-        return "{}: {}".format(self.pk, self.name)
+        return "{}: {}".format(self.pk, self.groupname)
     
     __str__ = __repr__
 
