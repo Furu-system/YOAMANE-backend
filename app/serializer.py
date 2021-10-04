@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from rest_framework.response import Response
 import copy
 
 from .models import *
@@ -50,10 +51,31 @@ class GroupNameSerializer(serializers.ModelSerializer):
 
 class GroupTagSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
+    name = serializers.CharField(required=False)
+    user_ids = serializers.CharField(required=False)
 
     class Meta:
         model = GroupTags
-        fields = ('id','user_id','groupname_id','create_user_id')
+        fields = ('id','user','groupname','create_user', 'name', 'user_ids')
+
+    def create(self, validated_data):
+        groupname_data = copy.copy(validated_data)
+        del groupname_data["create_user"]
+        del groupname_data["user_ids"]
+        groupname = GroupNames.objects.create(**groupname_data)
+
+        del validated_data["name"]
+        user_ids = validated_data["user_ids"]
+        del validated_data["user_ids"]
+        group_tags = []
+        for user_id in user_ids.split(","):
+            group_tag = GroupTags(
+                    groupname = groupname,
+                    create_user = validated_data["create_user"],
+                    user = Users.objects.get(id=int(user_id))
+                    )
+            group_tags.append(group_tag)
+        return GroupTags.objects.bulk_create(group_tags)
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
@@ -72,20 +94,24 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 
 class FriendSerializer(serializers.ModelSerializer):
-    user_info = UserSerializer(read_only=True)
-    user = serializers.PrimaryKeyRelatedField(queryset=Users.objects.all())
-    friend_user_info = UserSerializer(read_only=True)
-    friend_user_id = serializers.CharField(write_only=True)
+    #user_info = UserSerializer(read_only=True)
+    #user = serializers.PrimaryKeyRelatedField(queryset=Users.objects.all())
+    #friend_user_info = UserSerializer(read_only=True)
+    friend_user_id = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Friends
-        fields = ('id', 'user', 'friend_user', 'friend_user_id', 'user_info', 'friend_user_info')
+        fields = ('id', 'user', 'friend_user', 'friend_user_id') # , 'user_info', 'friend_user_info')
 
     def create(self, validated_data):
-        friend_user = Users.objects.get(user_id__startswith=validated_data["friend_user_id"])
-        validated_data["friend_user"] = friend_user
-        del validated_data['friend_user_id']
-        return Friends.objects.create(**validated_data)
+        try:
+            friend_user = Users.objects.get(user_id__startswith=validated_data["friend_user_id"])
+            validated_data["friend_user"] = friend_user
+            del validated_data['friend_user_id']
+            return Friends.objects.create(**validated_data)
+        except Users.DoesNotExist:
+            from rest_framework.exceptions import NotFound
+            raise NotFound()
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -95,10 +121,17 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignments
-        fields = ('id', 'name', 'start_time', 'is_finished', 'complete_time', 'margin', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user', 'to_do_list')
+        fields = ('id', 'name', 'start_time', 'end_time', 'is_finished', 'complete_time', 'margin', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user', 'to_do_list')
     
-    def create(self, validated_data):
-        ridge_regressor = RidgeRegression(validated_data)
+    #def create(self, validated_data):
+        #to_do_list_data = copy.copy(validated_data)
+        #del to_do_list_data["start_time"]
+        #del to_do_list_data["complete_time"]
+        #to_do_list_data["limited_time"] = to_do_list_data["end_time"]
+        #del to_do_list_data["end_time"]
+        #del to_do_list_data["is_finished"]
+        #ToDoLists.objects.create()
+        #ridge_regressor = RidgeRegression(validated_data)
     #    bayesian_inference = BayesianInference(2)
     #    print(bayesian_inference.calc_mean())
 
@@ -143,9 +176,6 @@ class TimeTableSerializer(serializers.ModelSerializer):
         fields = ('id', 'monday_timetable', 'tuesday_timetable', 'wednesday_timetable', 'thursday_timetable', 'friday_timetable', 'saturday_timetable', 'sunday_timetable', 'user')
     
     def create(self, validated_data):
-        print(validated_data)
-        print(validated_data["monday_timetable"])
-        print(type(validated_data["monday_timetable"]))
         time_table_time = TimeTableTimes.objects.filter(user=validated_data["user"])
         if time_table_time:
             time_table_schedule = TimeTableSchedule(time_table_time, copy.copy(validated_data))
@@ -156,9 +186,6 @@ class TimeTableSerializer(serializers.ModelSerializer):
         return time_table
 
     def update(self, instance, validated_data):
-        print(validated_data)
-        print(validated_data["monday_timetable"])
-        print(type(validated_data["monday_timetable"]))
         time_table_time = TimeTableTimes.objects.filter(user=validated_data["user"])
         if time_table_time:
             time_table_schedule = TimeTableSchedule(time_table_time, copy.copy(validated_data))
@@ -186,7 +213,7 @@ class ToDoListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ToDoLists
-        fields = ('id', 'name', 'subject_id', 'limited_time', 'estimated_work_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'is_work_finished', 'user_id')
+        fields = ('id', 'name', 'subject_id', 'limited_time', 'estimated_work_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'is_work_finished', 'user')
 
 
 class ToDoListTaskSerializer(serializers.ModelSerializer):
