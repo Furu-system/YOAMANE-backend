@@ -2,6 +2,7 @@ from .models import Schedules, Assignments
 import datetime
 import copy
 import numpy as np
+from itertools import chain
 
 class CommonSchedule:
     def __init__(self, request):
@@ -24,7 +25,8 @@ class CommonSchedule:
         return ("00" + str(h))[-2:] + ":" + ("00" + str(m))[-2:] + ":" + ("00" + str(s))[-2:]
 
     def __get_user_schedule(self, user_id, date):
-        return Schedules.objects.filter(user_id=user_id, start_time__date=date)
+        #return Schedules.objects.filter(user_id=user_id, start_time__date=date)
+        return list(chain(Schedules.objects.filter(user_id=user_id, start_time__date=date), Assignments.objects.filter(user_id=user_id, start_time__date=date)))
     
     def __create_time_dict(self):
         time_dict = {}

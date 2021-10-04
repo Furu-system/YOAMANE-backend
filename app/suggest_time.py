@@ -2,6 +2,7 @@ from .models import Schedules, Assignments, ToDoLists, GroupTags
 import datetime
 import copy
 import numpy as np
+from itertools import chain
 
 class SuggestTime:
     def __init__(self, request):
@@ -15,8 +16,13 @@ class SuggestTime:
             self.collabo_id_list = []
         self.required_time = datetime.timedelta(hours=to_do_list.estimated_work_time.hour, minutes=to_do_list.estimated_work_time.minute)
         self.required_time_minute = self.required_time.total_seconds() // 60
+
+        if self.required_time_minute >= 60*4:
+            self.assignment_count = self.required_time_minute // (60*2)
+            self.required_time_minute = self.required_time_minute // self.assignment_count
+        else:
+            self.assignment_count = 1
         self.limit_date = to_do_list.limited_time
-        print(self.limit_date)
     
     def helloworld(self):
         return "helloworld"
@@ -31,7 +37,7 @@ class SuggestTime:
         return ("00" + str(h))[-2:] + ":" + ("00" + str(m))[-2:] + ":" + ("00" + str(s))[-2:]
 
     def __get_user_schedule(self, user_id, date):
-        return Schedules.objects.filter(user_id=user_id, start_time__date=date)
+        return list(chain(Schedules.objects.filter(user_id=user_id, start_time__date=date), Assignments.objects.filter(user_id=user_id, start_time__date=date)))
     
     def __create_time_dict(self):
         time_dict = {}
@@ -94,6 +100,6 @@ class SuggestTime:
                     schedule_dict = {}
                     if all_user_time_list[i] == 0:
                         schedule_dict["start_time"] = datetime.datetime.combine(date, datetime.datetime.strptime(time_dict[i], "%H:%M:%S").time())
-                        schedule_dict["end_time"] = schedule_dict["start_time"] + self.required_time
+                        schedule_dict["end_time"] = schedule_dict["start_time"] + datetime.timedelta(minutes=self.required_time_minute)
                         return_data.append(schedule_dict)
-        return return_data
+        return return_data, self.assignment_count

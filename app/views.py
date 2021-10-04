@@ -81,9 +81,10 @@ class CommonScheduleAPIView(APIView):
 class SuggestTimeAPIView(APIView):
     def get(self, request, format=None):
         suggest_time = SuggestTime(request.POST)
-        suggest_times = suggest_time.get_suggest_time()
+        suggest_times, count = suggest_time.get_suggest_time()
         print(suggest_times)
         return Response({
             "data" : request.POST,
+            "count" : count,
             "candidate" : suggest_times,
             })
