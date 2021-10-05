@@ -103,3 +103,14 @@ class MarginAPIView(APIView):
             "message" : "hoge",
             "y" : y
             })
+
+class ReportTime(APIView):
+    def post(self, request, format=None):
+        assignment = Assignments.objects.get(id=request.POST.get("id"))
+        assignment.complete_time = request.POST.get("complete_time")
+        assignment.is_finished = True
+        assignment.save()
+        return Response({
+            "message" : "ok"
+            })
+        

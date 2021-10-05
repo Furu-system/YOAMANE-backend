@@ -35,4 +35,5 @@ urlpatterns = [
     url(r'^api/common-schedule/', CommonScheduleAPIView.as_view()),
     url(r'^api/suggest-time/', SuggestTimeAPIView.as_view()),
     url(r'^api/margin/', MarginAPIView.as_view()),
+    url(r'^api/report/', ReportTime.as_view()),
 ]
