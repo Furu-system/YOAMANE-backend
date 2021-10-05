@@ -16,9 +16,9 @@ class RidgeRegression:
 
     def __create_X_test(self, assignment):
         X_test = []
-        X_test.append(self.to_do_lists.get(id=assignment["to_do_list"]).subject_id)
-        X_test.append(datetime.datetime.strptime(assignment["start_time"], "%Y-%m-%d %H:%M:%S").weekday())
-        required_time = datetime.datetime.strptime(assignment["required_time"], "%H:%M:%S")
+        X_test.append(assignment["to_do_list"].subject_id)
+        X_test.append(assignment["start_time"].weekday())
+        required_time = assignment["required_time"]
         X_test.append((datetime.timedelta(hours=required_time.hour, minutes=required_time.minute, seconds=required_time.minute).total_seconds() - self.df["required_time_second"].mean()) / self.df["required_time_second"].std())
         return np.array(X_test)
 

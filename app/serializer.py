@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 import copy
+import datetime
 
 from .models import *
 
@@ -122,10 +123,18 @@ class AssignmentSerializer(serializers.ModelSerializer):
         model = Assignments
         fields = ('id', 'name', 'start_time', 'end_time', 'is_finished', 'complete_time', 'margin', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user', 'to_do_list')
     
-    #def create(self, validated_data):
-        #ridge_regressor = RidgeRegression(validated_data)
+    def create(self, validated_data):
+        ridge_regressor = RidgeRegression(validated_data)
         #bayesian_inference = BayesianInference(2)
-        #print(bayesian_inference.calc_mean())
+        y = ridge_regressor.get_margin_time()[0][0]
+        if y < 0:
+            validated_data["margin"] = datetime.time(hour=0)
+        else :
+            _hour = int(y // 3600)
+            _min = int((y - _hour * 3600) // 60)
+            _sec = int(y - _hour * 3600 - _min * 60)
+            validated_data["margin"] = datetime.time(hour=_hour, minute=_min, second=_sec)
+        return Assignments.objects.create(**validated_data)
 
 
 class TimeTableTimeSerializer(serializers.ModelSerializer):
