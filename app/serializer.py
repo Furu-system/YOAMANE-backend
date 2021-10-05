@@ -124,16 +124,9 @@ class AssignmentSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'start_time', 'end_time', 'is_finished', 'complete_time', 'margin', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user', 'to_do_list')
     
     #def create(self, validated_data):
-        #to_do_list_data = copy.copy(validated_data)
-        #del to_do_list_data["start_time"]
-        #del to_do_list_data["complete_time"]
-        #to_do_list_data["limited_time"] = to_do_list_data["end_time"]
-        #del to_do_list_data["end_time"]
-        #del to_do_list_data["is_finished"]
-        #ToDoLists.objects.create()
         #ridge_regressor = RidgeRegression(validated_data)
-    #    bayesian_inference = BayesianInference(2)
-    #    print(bayesian_inference.calc_mean())
+        #bayesian_inference = BayesianInference(2)
+        #print(bayesian_inference.calc_mean())
 
 
 class TimeTableTimeSerializer(serializers.ModelSerializer):
@@ -205,6 +198,7 @@ class TimeTableSerializer(serializers.ModelSerializer):
 class ToDoListSerializer(serializers.ModelSerializer):
     # user_id = UserSerializer()
     # subjects_id = SubjectSerializer()
+    collaborating_ids = serializers.CharField(write_only=True, required=False)
 
     def validate_name(self,value):
         if len(value) > 50:
@@ -213,7 +207,39 @@ class ToDoListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ToDoLists
-        fields = ('id', 'name', 'subject_id', 'limited_time', 'estimated_work_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'is_work_finished', 'user')
+        fields = ('id', 'name', 'subject_id', 'limited_time', 'estimated_work_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'collaborating_ids', 'memo', 'is_work_finished', 'user')
+
+    def create(self, validated_data):
+        if validated_data["collaborating_ids"]:
+            user_ids = validated_data["collaborating_ids"].split(",")
+            if len(user_ids) == 1:
+                existing_group_tag = GroupTags.objects.filter(create_user=validated_data["user"], groupname=user_ids[0])
+                print(existing_group_tag)
+                if existing_group_tag:
+                    #print(existing_group_tag[0].groupname)
+                    #print(GroupNames.objects.filter(id=existing_group_tag[0].groupname))
+                    validated_data["collaborating_group_id"] = existing_group_tag[0].groupname.id
+                else:
+                    validated_data["collaborating_member_id"] = Users.objects.get(id=user_ids[0])
+            else:
+                user_names = []
+                for user_id in user_ids:
+                    user_names.append(Users.objects.get(id=user_id).username)
+                group_name_data = {"name": ",".join(user_names)}
+                group_name = GroupNames.objects.create(**group_name_data)
+
+                group_tags = []
+                for user_id in user_ids:
+                    group_tag = GroupTags(
+                            groupname = group_name,
+                            create_user = validated_data["user"],
+                            user = Users.objects.get(id=int(user_id)),
+                            )
+                    group_tags.append(group_tag)
+                GroupTags.objects.bulk_create(group_tags)
+                validated_data["collaborating_group_id"] = group_name.id
+        del validated_data["collaborating_ids"]
+        return ToDoLists.objects.create(**validated_data)
 
 
 class ToDoListTaskSerializer(serializers.ModelSerializer):
