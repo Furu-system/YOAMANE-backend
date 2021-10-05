@@ -73,6 +73,7 @@ class Friends(models.Model):
 
 class GroupNames(models.Model):
     name = models.CharField(max_length=50)
+    create_user = models.ForeignKey(Users, blank=True, null=True, on_delete=models.CASCADE, related_name="name_create_user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -83,7 +84,7 @@ class GroupNames(models.Model):
 
 class GroupTags(models.Model):
     groupname = models.ForeignKey(GroupNames, blank=True, null=True, on_delete=models.CASCADE)
-    create_user = models.ForeignKey(Users, blank=True, null=True, on_delete=models.CASCADE, related_name="create_user")
+    create_user = models.ForeignKey(Users, blank=True, null=True, on_delete=models.CASCADE, related_name="tag_create_user")
     user = models.ForeignKey(Users, blank=True, null=True, on_delete=models.CASCADE,related_name="grouptag_user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
