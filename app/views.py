@@ -42,6 +42,11 @@ class TimeTableTimeViewSet(viewsets.ModelViewSet):
     serializer_class = TimeTableTimeSerializer
     filter_fields = ['user',]
 
+class GroupNameViewSet(viewsets.ModelViewSet):
+    queryset = GroupNames.objects.all()
+    serializer_class = GroupNameSerializer
+    filter_fields = ['create_user']
+
 class GroupTagViewSet(viewsets.ModelViewSet):
     queryset = GroupTags.objects.all()
     serializer_class = GroupTagSerializer

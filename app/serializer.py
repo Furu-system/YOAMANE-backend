@@ -46,7 +46,7 @@ class GroupNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GroupNames
-        fields = ('id','name')
+        fields = ('id','name', 'create_user')
 
 
 class GroupTagSerializer(serializers.ModelSerializer):
@@ -60,7 +60,6 @@ class GroupTagSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         groupname_data = copy.copy(validated_data)
-        del groupname_data["create_user"]
         del groupname_data["user_ids"]
         groupname = GroupNames.objects.create(**groupname_data)
 
@@ -225,7 +224,7 @@ class ToDoListSerializer(serializers.ModelSerializer):
                 user_names = []
                 for user_id in user_ids:
                     user_names.append(Users.objects.get(id=user_id).username)
-                group_name_data = {"name": ",".join(user_names)}
+                group_name_data = {"name": ",".join(user_names), "create_user": validated_data["user"]}
                 group_name = GroupNames.objects.create(**group_name_data)
 
                 group_tags = []
