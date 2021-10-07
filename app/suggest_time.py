@@ -6,7 +6,9 @@ from itertools import chain
 
 class SuggestTime:
     def __init__(self, request):
-        to_do_list = ToDoLists.objects.get(id=request["to_do_list"])
+        print(request)
+        print(request.get("to_do_list"))
+        to_do_list = ToDoLists.objects.get(id=request.get("to_do_list"))
         self.my_user_id = to_do_list.user
         if to_do_list.collaborating_member:
             self_collabo_id_list = [to_do_list.collaborating_member]
