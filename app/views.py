@@ -33,7 +33,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     filter_fields = ['user',]
 
     def list(self, request):
-        assignments = Assignments.objects.filter(start_time__date=request.GET.get("date"))
+        assignments = Assignments.objects.filter(user=request.GET.get("user"), start_time__date=request.GET.get("date"))
         serializer = AssignmentSerializer(assignments, many=True)
         return Response(serializer.data)
 
@@ -86,11 +86,11 @@ class CommonScheduleAPIView(APIView):
 
 class SuggestTimeAPIView(APIView):
     def get(self, request, format=None):
-        suggest_time = SuggestTime(request.POST)
+        suggest_time = SuggestTime(request.GET)
         suggest_times, count = suggest_time.get_suggest_time()
         print(suggest_times)
         return Response({
-            "data" : request.POST,
+            "data" : request.GET,
             "count" : count,
             "candidate" : suggest_times,
             })

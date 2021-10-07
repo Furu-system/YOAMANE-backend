@@ -90,7 +90,7 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Schedules
-        fields = ('id', 'title', 'start_time', 'end_time', 'is_all_day', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user_id')
+        fields = ('id', 'title', 'start_time', 'end_time', 'is_all_day', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user')
 
 
 class FriendSerializer(serializers.ModelSerializer):
@@ -121,7 +121,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignments
-        fields = ('id', 'name', 'start_time', 'end_time', 'is_finished', 'complete_time', 'margin', 'required_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'memo', 'user', 'to_do_list')
+        fields = ('id', 'name', 'start_time', 'end_time', 'is_finished', 'complete_time', 'margin', 'required_time', 'notifying_time', 'collaborating_member', 'collaborating_group', 'memo', 'user', 'to_do_list')
     
     def create(self, validated_data):
         ridge_regressor = RidgeRegression(validated_data)
@@ -134,6 +134,21 @@ class AssignmentSerializer(serializers.ModelSerializer):
             _min = int((y - _hour * 3600) // 60)
             _sec = int(y - _hour * 3600 - _min * 60)
             validated_data["margin"] = datetime.time(hour=_hour, minute=_min, second=_sec)
+
+        if "collaborating_member" in validated_data:
+            if validated_data["collaborating_member"]:
+                collabo_validated_data = copy.copy(validated_data)
+                collabo_validated_data["user"] = validated_data["collaborating_member"]
+                collabo_validated_data["collaborating_member"] = validated_data["user"]
+                Assignments.objects.create(**collabo_validated_data)
+
+        if "collaborating_group" in validated_data:
+            if validated_data["collaborating_group"]:
+                user_ids = GroupTags.objects.filter(groupname=validated_data["collaborating_group"], create_user=validated_data["user"])
+                for user_id in user_ids:
+                    collabo_validated_data = copy.copy(validated_data)
+                    collabo_validated_data["user"] = user_id.user
+                    Assignments.objects.create(**collabo_validated_data)
         return Assignments.objects.create(**validated_data)
 
 
@@ -218,35 +233,36 @@ class ToDoListSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'subject_id', 'limited_time', 'estimated_work_time', 'notifying_time', 'collaborating_member_id', 'collaborating_group_id', 'collaborating_ids', 'memo', 'is_work_finished', 'user')
 
     def create(self, validated_data):
-        if validated_data["collaborating_ids"]:
-            user_ids = validated_data["collaborating_ids"].split(",")
-            if len(user_ids) == 1:
-                existing_group_tag = GroupTags.objects.filter(create_user=validated_data["user"], groupname=user_ids[0])
-                print(existing_group_tag)
-                if existing_group_tag:
-                    #print(existing_group_tag[0].groupname)
-                    #print(GroupNames.objects.filter(id=existing_group_tag[0].groupname))
-                    validated_data["collaborating_group_id"] = existing_group_tag[0].groupname.id
+        if "collaborating_ids" in validated_data:
+            if validated_data["collaborating_ids"]:
+                user_ids = validated_data["collaborating_ids"].split(",")
+                if len(user_ids) == 1:
+                    existing_group_tag = GroupTags.objects.filter(create_user=validated_data["user"], groupname=user_ids[0])
+                    print(existing_group_tag)
+                    if existing_group_tag:
+                        #print(existing_group_tag[0].groupname)
+                        #print(GroupNames.objects.filter(id=existing_group_tag[0].groupname))
+                        validated_data["collaborating_group_id"] = existing_group_tag[0].groupname.id
+                    else:
+                        validated_data["collaborating_member_id"] = Users.objects.get(id=user_ids[0])
                 else:
-                    validated_data["collaborating_member_id"] = Users.objects.get(id=user_ids[0])
-            else:
-                user_names = []
-                for user_id in user_ids:
-                    user_names.append(Users.objects.get(id=user_id).username)
-                group_name_data = {"name": ",".join(user_names), "create_user": validated_data["user"]}
-                group_name = GroupNames.objects.create(**group_name_data)
+                    user_names = []
+                    for user_id in user_ids:
+                        user_names.append(Users.objects.get(id=user_id).username)
+                    group_name_data = {"name": ",".join(user_names), "create_user": validated_data["user"]}
+                    group_name = GroupNames.objects.create(**group_name_data)
 
-                group_tags = []
-                for user_id in user_ids:
-                    group_tag = GroupTags(
+                    group_tags = []
+                    for user_id in user_ids:
+                        group_tag = GroupTags(
                             groupname = group_name,
                             create_user = validated_data["user"],
                             user = Users.objects.get(id=int(user_id)),
                             )
-                    group_tags.append(group_tag)
-                GroupTags.objects.bulk_create(group_tags)
-                validated_data["collaborating_group_id"] = group_name.id
-        del validated_data["collaborating_ids"]
+                        group_tags.append(group_tag)
+                    GroupTags.objects.bulk_create(group_tags)
+                    validated_data["collaborating_group_id"] = group_name.id
+            del validated_data["collaborating_ids"]
         return ToDoLists.objects.create(**validated_data)
 
 
@@ -300,4 +316,4 @@ class SubjectSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Subjects
-        fields = ('id', 'name', 'is_hidden', 'user_id', 'color_id')
+        fields = ('id', 'name', 'is_hidden', 'user', 'color_id')
