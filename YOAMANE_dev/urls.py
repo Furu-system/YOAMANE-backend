@@ -36,4 +36,5 @@ urlpatterns = [
     url(r'^api/suggest-time/', SuggestTimeAPIView.as_view()),
     url(r'^api/margin/', MarginAPIView.as_view()),
     url(r'^api/report/', ReportTime.as_view()),
+    url(r'^api/share-timetable', ShareTimeTable.as_view()),
 ]

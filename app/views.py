@@ -113,4 +113,14 @@ class ReportTime(APIView):
         return Response({
             "message" : "ok"
             })
+
+class ShareTimeTable(APIView):
+    def post(self, request, format=None):
+        time_table = TimeTables.objects.filter(user=request.POST.get("from_user")).first()
+        time_table.pk = None
+        time_table.user = Users.objects.get(id=request.POST.get("to_user"))
+        time_table.save()
+        return Response({
+            "message" : "OK"
+            })
         
