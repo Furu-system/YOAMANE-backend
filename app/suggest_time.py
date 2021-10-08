@@ -81,7 +81,12 @@ class SuggestTime:
                     time_list = np.array([0 for _ in range(self.__calc_list_number(self.required_time_minute))])
 
                     schedule.start_time = schedule.start_time + datetime.timedelta(hours=9)
-                    schedule.end_time = schedule.end_time + datetime.timedelta(hours=9)
+                    if hasattr(schedule, "margin"):
+                        print(schedule.margin.hour)
+                        margin_time = datetime.timedelta(hours=schedule.margin.hour, minutes=schedule.margin.minute, seconds=schedule.margin.second)
+                        schedule.end_time = schedule.end_time + datetime.timedelta(hours=9) + margin_time
+                    else:
+                        schedule.end_time = schedule.end_time + datetime.timedelta(hours=9)
 
                     start = schedule.start_time.hour * 60 + ((schedule.start_time.minute // self.required_time_minute) * self.required_time_minute) + (((schedule.start_time.second / 60) // (self.required_time_minute * 60)) * self.required_time_minute * 60)
                     end = schedule.end_time.hour * 60 + ((schedule.end_time.minute // self.required_time_minute) * self.required_time_minute) + (((schedule.end_time.second / 60) // (self.required_time_minute * 60)) * self.required_time_minute * 60)

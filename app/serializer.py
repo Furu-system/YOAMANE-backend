@@ -316,4 +316,4 @@ class SubjectSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Subjects
-        fields = ('id', 'name', 'is_hidden', 'user', 'color_id')
+        fields = ('id', 'name', 'is_hidden', 'user', 'color')
